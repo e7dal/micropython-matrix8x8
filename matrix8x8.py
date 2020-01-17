@@ -1,4 +1,4 @@
-import pyb
+import machine
 
 
 class Matrix8x8:
@@ -15,7 +15,7 @@ class Matrix8x8:
     """
     row_addr = (0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0E)
 
-    def __init__(self, i2c_bus=1, addr=0x70, brightness=15, i2c=None):
+    def __init__(self, i2c_bus=1, addr=0x70, brightness=b'\x0F', i2c=None):
         """
         Params:
         * i2c_bus = I2C bus ID (1 or 2) or None (if param 'i2c' is provided)
@@ -31,21 +31,27 @@ class Matrix8x8:
         if i2c:
             self.i2c = i2c
         else:
-            self.i2c = pyb.I2C(i2c_bus, pyb.I2C.MASTER, baudrate=400000)
+            self.i2c = machine.I2C(i2c_bus, machine.I2C.MASTER, baudrate=400000)
 
         # set HT16K33 oscillator on
-        self._send(0x21)
+        #self._send(0x21)
+        self._send(b'\x21')
+        
 
         self.set_brightness(brightness)
-        self.clear()
+        #self.clear()
         self.on()
 
     def _send(self, data):
         """
         Send data over I2C.
         """
-        self.i2c.send(data, self.addr)
-
+        #if type(data) not in "bytebytearray"
+        #self.i2c.send(data, self.addr)
+        
+        print("sending:writeto",self.addr,data)
+        self.i2c.writeto(self.addr,data)
+        
     def _send_row(self, row):
         """
         Send single row over I2C.
@@ -94,7 +100,8 @@ class Matrix8x8:
         Turn on display.
         """
         self.is_on = True
-        self._send(0x81 | self._blinking << 1)
+        #self._send(0x81 | self._blinking << 1)
+        self._send(b'\x81') # | self._blinking << 1)
 
     def off(self):
         """
@@ -102,13 +109,16 @@ class Matrix8x8:
         brightness, blinking, ...).
         """
         self.is_on = False
-        self._send(0x80)
+        self._send(b'\x80')
 
     def set_brightness(self, value):
         """
         Set display brightness. Value from 0 (min) to 15 (max).
         """
-        self._send(0xE0 | value)
+        if value:
+            self._send(hex(value))
+        else:
+            self._send(b'\xE0' )
 
     def set_blinking(self, mode):
         """
