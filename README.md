@@ -1,3 +1,10 @@
+cloned: https://github.com/JanBednarik/micropython-matrix8x8 , thanks @JanBednarik :)
+
+adjusted to work on esp32
+readme is out of date for my(e7dal) changes...
+where you see hex value like this 0xFF, should replace with bytes b'\xFF'
+
+
 MicroPython Matrix8x8 Driver
 ============================
 
